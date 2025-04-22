@@ -1,36 +1,3 @@
-Important Risk Factors¶
-
-Research in the field has identified the following as important risk factors for diabetes and other chronic illnesses like heart disease (not in strict order of importance):
-
-blood pressure (high)
-cholesterol (high)
-smoking
-diabetes
-obesity
-age
-sex
-race
-diet
-exercise
-alcohol consumption
-BMI
-Household Income
-Marital Status
-Sleep
-Time since last checkup
-Education
-Health care coverage
-Mental Health
-Selected Subset of Features from BRFSS 2015
-
-Given these risk factors, I tried to select features (columns/questions) in the BRFSS related to these risk factors. To help understand what the columns mean, I consult the BRFSS 2015 Codebook to see the questions and information about the questions. I try to match the variable names in the codebook to the variable names in the dataset I downloaded from Kaggle. I also reference some of the same features chosen for a research paper by Zidian Xie et al for Building Risk Prediction Models for Type 2 Diabetes Using Machine Learning Techniques using the 2014 BRFSS.
-
-BRFSS 2015 Codebook: https://www.cdc.gov/brfss/annual_data/2015/pdf/codebook15_llcp.pdf
-
-Relevant Research Paper using BRFSS for Diabetes ML: https://www.cdc.gov/pcd/issues/2019/19_0109.htm
-
-The selected features from the BRFSS 2015 dataset are:
-
 Response Variable / Dependent Variable:
 
 (Ever told) you have diabetes (If "Yes" and respondent is female, ask "Was this only when you were pregnant?". If Respondent says pre-diabetes or borderline diabetes, use response code 4.) --> DIABETE3
