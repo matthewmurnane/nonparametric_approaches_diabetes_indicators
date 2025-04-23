@@ -1,0 +1,65 @@
+---
+title: "nonpara_binary_spline"
+author: "Allen Matyushkin"
+date: "2025-04-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Necessary Packages for Spline:
+
+```{r}
+library(mgcv)
+```
+
+Model Preparation:
+
+```{r}
+nonbin <- q1
+nonbin <- na.omit(nonbin)
+nonbin$Income <- as.factor(nonbin$Income)
+nonbin$Smoker <- as.numeric(nonbin$Smoker)
+nonbin$PhysActivity <- as.factor(nonbin$PhysActivity)
+nonbin$HeartDiseaseorAttack <- as.numeric(nonbin$HeartDiseaseorAttack)
+nonbin$Age <- as.numeric(nonbin$Age)
+
+```
+
+Model Creation:
+
+```{r}
+#Spline for Age and Income
+
+binspline <- gam(Diabetes_binary ~ HvyAlcoholConsump + s(Age) + (Income) + Smoker + PhysActivity + HeartDiseaseorAttack, family = binomial(link="logit"), data = nonbin)
+
+```
+
+Assumption Check:
+
+```{r}
+# Plot residuals vs. fitted values
+plot(fitted(binspline), res,
+     xlab = "Fitted Values",
+     ylab = "Deviance Residuals",
+     main = "Residuals vs Fitted")
+abline(h = 0, col = "red")
+
+#Multicollinearity
+vif_check <- glm(Diabetes_binary ~ HvyAlcoholConsump + Age + Income + Smoker + PhysActivity + HeartDiseaseorAttack,data = nonbin, family = binomial)
+vif(vif_check)
+
+
+```
+
+Model Check:
+
+```{r}
+summary(binspline)
+```
+
+
+
+
