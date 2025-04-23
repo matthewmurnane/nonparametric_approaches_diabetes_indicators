@@ -15,6 +15,8 @@ library(gridExtra)
 library(ggthemes)
 library(kableExtra)
 library(readr)
+library(dplyr)
+library(car)
 ```
 
 ```{r}
@@ -32,3 +34,8 @@ p1 <- diabeted_multiclass %>%
   geom_bar(aes(x=dia))
 ```
 
+EDA for the Binary Logistic Regression Question
+``` {r}
+q1 <- diabetes_binary_balanced %>% select(Diabetes_binary, HvyAlcoholConsump, Income, Smoker, Age, PhysActivity, HeartDiseaseorAttack)
+
+```
