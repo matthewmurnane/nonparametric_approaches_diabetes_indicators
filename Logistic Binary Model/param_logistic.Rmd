@@ -1,0 +1,112 @@
+---
+title: "Parametric model _ Logistic"
+author: "Truc Hoang"
+date: "2025-04-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Copy the initial code 
+
+```{r}
+library(tidyverse)
+library(gridExtra)
+library(ggthemes)
+library(kableExtra)
+library(readr)
+library(dplyr)
+library(car)
+library(pROC)
+library(ggcorrplot)
+library(skimr)
+library(caret)
+library(glmnet)
+```
+
+```{r}
+# Load and prepare both datasets
+diabeted_multiclass <- read_csv("../data/diabeted_multiclass.csv")
+diabetes_binary_balanced <- read_csv("../data/diabetes_binary_balanced.csv")
+
+glimpse(diabeted_multiclass)
+glimpse(diabetes_binary_balanced)
+
+p1 <- diabeted_multiclass %>% 
+  ggplot()+
+  geom_bar(aes(x=dia))
+```
+
+EDA for the Binary Logistic Regression Question
+``` {r}
+q1 <- diabetes_binary_balanced %>% 
+  dplyr::select(c(Diabetes_binary, HvyAlcoholConsump, Income, Smoker, Age, PhysActivity, HeartDiseaseorAttack))
+q1
+```
+
+Data cleaning and preprocessing
+```{r}
+nonbin <- q1 %>%
+  na.omit() %>%
+  mutate(
+    Diabetes_binary = as.factor(Diabetes_binary),
+    HvyAlcoholConsump = as.factor(HvyAlcoholConsump),
+    Income = as.factor(Income),
+    Smoker = as.factor(Smoker),  # Changed to factor for better interpretation
+    Age = as.numeric(Age),
+    PhysActivity = as.factor(PhysActivity),
+    HeartDiseaseorAttack = as.factor(HeartDiseaseorAttack)
+  )
+nonbin
+```
+
+```{r}
+# Parametric Logistic Regression Model
+parametric_dfmodel <- glm(
+  Diabetes_binary ~ .,
+  family = binomial(link = "logit"),
+  data = nonbin
+)
+summary(parametric_dfmodel)
+# Based on p-value, only factor Income 2 are not significant.
+```
+
+```{r}
+# Influential points: Everything looks fine
+cooks_dist <- cooks.distance(parametric_dfmodel)
+influential_points <- which(cooks_dist > 4 / nrow(nonbin))
+influential_data <- nonbin[influential_points, ]
+summary(influential_data)
+```
+
+```{r}
+# Histogram to check the normal distribution of Age
+ggplot(nonbin, aes(x = Age)) + geom_histogram(bins = 100) + theme_minimal()
+# The distribution is lightly left skew so I might use square power
+ggplot(nonbin, aes(x = Age^2)) + geom_histogram(bins = 100) + theme_minimal()
+```
+```{r}
+# Update dataset
+nonbin_new <- nonbin %>%
+  mutate(
+    Age_Sq = Age^2
+  )
+nonbin_new
+```
+
+Variable Selection by BIC
+```{r}
+model <- glm(Diabetes_binary ~ HvyAlcoholConsump + Income + Smoker + Age_Sq + PhysActivity + HeartDiseaseorAttack, family = "binomial", 
+    data = nonbin_new)
+bic_model <- step(glm(Diabetes_binary ~ 1, family="binomial", data=nonbin_new), scope = formula(model), 
+                  direction = "both", trace = 0, k = log(nrow(nonbin_new)))
+# Remove Income2 since it is insignificant
+summary(bic_model)
+```
+
+Multicollinearity
+```{r}
+vif(bic_model)
+```
