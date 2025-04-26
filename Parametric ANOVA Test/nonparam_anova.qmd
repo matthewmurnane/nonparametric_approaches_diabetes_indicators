@@ -1,0 +1,84 @@
+---
+title: "kruskal-wallis"
+format: pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(ggthemes)
+library(readr)
+
+diabetes_binary_balanced <- read_csv("../data/diabeted_multiclass.csv")
+```
+
+
+
+
+```{r}
+data <- diabeted_multiclass %>% 
+  select(Diabetes_012,
+         BMI)
+
+data$Diabetes_012 <- factor(data$Diabetes_012,
+                            levels = c(0, 1, 2),
+                            labels = c("No Diabetes", "Prediabetes", "Diabetes"))
+glimpse(data)
+```
+
+```{r}
+data <- diabeted_multiclass %>% 
+  select(Diabetes_012,
+         BMI)
+
+data$Diabetes_012 <- factor(data$Diabetes_012,
+                            levels = c(0, 1, 2),
+                            labels = c("No Diabetes", "Prediabetes", "Diabetes"))
+glimpse(data)
+```
+
+```{r}
+summary(data$BMI)
+```
+
+```{r}
+hist(data$BMI)
+```
+```{r}
+data %>% 
+  ggplot()+
+  geom_histogram(aes(x=BMI))+
+  facet_wrap(~Diabetes_012)
+```
+```{r}
+data %>% 
+  ggplot()+
+  geom_bar(aes(x = Diabetes_012))
+```
+
+
+
+
+```{r}
+ggplot(data, aes(x = Diabetes_012, y = BMI, fill = Diabetes_012)) +
+  geom_boxplot() +
+  labs(title = "BMI Distribution by Diabetes Status",
+       x = "Diabetes Status",
+       y = "BMI") +
+  theme_minimal()
+```
+
+
+
+
+```{r}
+kruskal.test(BMI ~ Diabetes_012, data = data)
+```
+
+
+```{r}
+pairwise.wilcox.test(data$BMI, data$Diabetes_012, p.adjust.method = "bonferroni")
+```
+
+
