@@ -21,9 +21,9 @@ Model Preparation:
 nonbin <- q1
 nonbin <- na.omit(nonbin)
 nonbin$Income <- as.factor(nonbin$Income)
-nonbin$Smoker <- as.numeric(nonbin$Smoker)
+nonbin$Smoker <- as.factor(nonbin$Smoker)
 nonbin$PhysActivity <- as.factor(nonbin$PhysActivity)
-nonbin$HeartDiseaseorAttack <- as.numeric(nonbin$HeartDiseaseorAttack)
+nonbin$HeartDiseaseorAttack <- as.factor(nonbin$HeartDiseaseorAttack)
 nonbin$Age <- as.numeric(nonbin$Age)
 
 ```
