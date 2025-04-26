@@ -1,0 +1,57 @@
+---
+title: "Compare Models"
+author: "Allen Matyushkin"
+date: "2025-04-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Necessary Packages for Comparison:
+
+```{r}
+library(performance)
+```
+
+Estimators Comparison:
+
+```{r}
+#Parametric Model
+summary(bic_model)
+
+#NonParametric Model
+summary(binspline)
+```
+
+Point Estimator Comparison:
+
+```{r}
+# new data point
+new_point <- data.frame(
+  Age_Sq = 6^2,            
+  Age = 6,
+  Income = factor(3, levels = 1:8),  
+  HeartDiseaseorAttack = factor(0, levels = 0:1),
+  PhysActivity = factor(1, levels = 0:1),
+  HvyAlcoholConsump = factor(0, levels = 0:1),
+  Smoker = factor(1, levels = 0:1)
+)
+
+# logistic model prediction
+predict(bic_model, newdata = new_point, type = "response")
+
+# binary spline prediction
+predict(binspline, newdata = new_point, type = "response")
+
+```
+
+Model Comparison:
+
+```{r}
+compare_performance(bic_model, binspline)
+
+```
+
+

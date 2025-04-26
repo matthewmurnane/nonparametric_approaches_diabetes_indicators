@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(mgcv)
+library(performance)
 ```
 
 Model Preparation:
@@ -25,6 +26,7 @@ nonbin$Smoker <- as.factor(nonbin$Smoker)
 nonbin$PhysActivity <- as.factor(nonbin$PhysActivity)
 nonbin$HeartDiseaseorAttack <- as.factor(nonbin$HeartDiseaseorAttack)
 nonbin$Age <- as.numeric(nonbin$Age)
+nonbin$HvyAlcoholConsump <- as.factor(nonbin$HvyAlcoholConsump)
 
 ```
 
