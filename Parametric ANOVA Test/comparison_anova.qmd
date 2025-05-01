@@ -77,6 +77,13 @@ Levene's Test reject null that variances are equal.
 
 Two assumptions have be violated. Nonparametric is a great choice.
 
+```{r}
+#Post-Hoc Test (as ANOVA is significant)
+TukeyHSD(anova_model)
+```
+all pairwise differences in mean BMI among the three diabetes groups are statistically significant at the 0.05 level. 
+
+
 Welch's Test does not consider equal variances
 ```{r}
 # Welch's ANOVA
