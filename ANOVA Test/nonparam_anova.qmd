@@ -65,17 +65,21 @@ p_0 + p_1 + p_2
 ```{r}
 data %>% 
   ggplot()+
-  geom_bar(aes(x = Diabetes_012))
+  geom_bar(aes(x = Diabetes_012),
+           fill = "black") +
+  theme_few()+
+  xlab("")+
+  ggtitle("Distribution of Daibetes Factor")
 ```
 
 
 
 
 ```{r}
-ggplot(data, aes(x = Diabetes_012, y = BMI, fill = Diabetes_012)) +
+ggplot(data, aes(x = Diabetes_012, y = BMI)) +
   geom_boxplot() +
   labs(title = "BMI Distribution by Diabetes Status",
-       x = "Diabetes Status",
+       x = "",
        y = "BMI") +
   theme_minimal()
 ```

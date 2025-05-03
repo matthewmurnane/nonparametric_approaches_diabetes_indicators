@@ -17,25 +17,95 @@ library(kableExtra)
 library(readr)
 library(dplyr)
 library(car)
+library(patchwork)
 ```
 
 ```{r}
-diabeted_multiclass <- read_csv("../data/diabeted_multiclass.csv")
+diabetes_multiclass <- read_csv("../data/diabeted_multiclass.csv")
 diabetes_binary_balanced <- read_csv("../data/diabetes_binary_balanced.csv")
 ```
 
 ```{r}
-glimpse(diabeted_multiclass)
+glimpse(diabetes_multiclass)
 glimpse(diabetes_binary_balanced)
 ```
 ```{r}
-p1 <- diabeted_multiclass %>% 
+diabetes_binary_balanced %>% 
   ggplot()+
-  geom_bar(aes(x=dia))
+  geom_bar(aes(x=Diabetes_binary),
+           fill="black")+
+  theme_minimal()+
+  xlab("")+
+  ggtitle("Balanced Response Variable!")
 ```
 
-EDA for the Binary Logistic Regression Question
-``` {r}
-q1 <- diabetes_binary_balanced %>% select(Diabetes_binary, HvyAlcoholConsump, Income, Smoker, Age, PhysActivity, HeartDiseaseorAttack)
 
+```{r}
+diabeted_multiclass %>% 
+  ggplot() +
+  geom_bar(aes(x = Age), fill = "black") +
+  scale_x_continuous(breaks = seq(2, 12, by = 2)) +
+  theme_few() +
+  ggtitle("Distribution of Age")
 ```
+
+
+```{r}
+# Shared theme
+shared_theme <- theme_few() +
+  theme(legend.position = "bottom")
+
+p1 <- diabetes_binary_balanced %>%
+  mutate(HighBP = as.factor(HighBP),
+         Diabetes_binary = as.factor(Diabetes_binary)) %>%
+  ggplot(aes(x = HighBP, fill = Diabetes_binary)) +
+  geom_bar() +
+  scale_x_discrete(labels = c("0", "1")) +
+  labs(x = "High Blood Pressure") +
+  shared_theme
+
+p2 <- diabetes_binary_balanced %>%
+  mutate(HighChol = as.factor(HighChol),
+         Diabetes_binary = as.factor(Diabetes_binary)) %>%
+  ggplot(aes(x = HighChol, fill = Diabetes_binary)) +
+  geom_bar() +
+  scale_x_discrete(labels = c("0", "1")) +
+  labs(x = "High Cholesterol") +
+  shared_theme
+
+p3 <- diabetes_binary_balanced %>%
+  mutate(Smoker = as.factor(Smoker),
+         Diabetes_binary = as.factor(Diabetes_binary)) %>%
+  ggplot(aes(x = Smoker, fill = Diabetes_binary)) +
+  geom_bar() +
+  scale_x_discrete(labels = c("0", "1")) +
+  labs(x = "Smoker") +
+  shared_theme
+
+p4 <- diabetes_binary_balanced %>%
+  mutate(Stroke = as.factor(Stroke),
+         Diabetes_binary = as.factor(Diabetes_binary)) %>%
+  ggplot(aes(x = Stroke, fill = Diabetes_binary)) +
+  geom_bar() +
+  scale_x_discrete(labels = c("0", "1")) +
+  labs(x = "Stroke") +
+  shared_theme
+
+# Combine with shared legend
+(p1 + p2 + p3 + p4) + plot_layout(guides = "collect")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

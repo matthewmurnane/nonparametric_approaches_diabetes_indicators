@@ -22,11 +22,24 @@ data <- diabeted_multiclass %>%
   select(Diabetes_012,
          BMI)
 
+data <- data %>%
+  filter(BMI >= 14.9, BMI <= 33.3)
+
 data$Diabetes_012 <- factor(data$Diabetes_012,
                             levels = c(0, 1, 2),
                             labels = c("no_diabetes", "prediabetes", "diabetes"))
 glimpse(data)
 ```
+
+```{r}
+ggplot(data, aes(x = Diabetes_012, y = BMI)) +
+  geom_boxplot() +
+  labs(title = "BMI Distribution by Diabetes Status",
+       x = "",
+       y = "BMI") +
+  theme_minimal()
+```
+
 
 ```{r}
 data %>% 
@@ -48,6 +61,16 @@ diabetes <- slice_sample(data[data$Diabetes_012 == "diabetes", ], n=n)
 
 test_data <- bind_rows(prediabetes, no_diabetes, diabetes)
 ```
+
+```{r}
+ggplot(test_data, aes(x = Diabetes_012, y = BMI)) +
+  geom_boxplot() +
+  labs(title = "BMI Distribution by Diabetes Status for Test Data",
+       x = "",
+       y = "BMI") +
+  theme_minimal()
+```
+
 
 
 
@@ -75,7 +98,7 @@ leveneTest(BMI ~ Diabetes_012, data = test_data)
 ```
 Levene's Test reject null that variances are equal. 
 
-Two assumptions have be violated. Nonparametric is a great choice.
+One assumptions have be violated. Nonparametric is a great choice.
 
 ```{r}
 #Post-Hoc Test (as ANOVA is significant)
@@ -98,7 +121,7 @@ Significant P-value
 p_0 <- test_data %>% 
   filter(Diabetes_012 == "no_diabetes") %>% 
   ggplot()+
-  geom_histogram(aes(x = BMI),
+  geom_bar(aes(x = BMI),
                  fill = "black")+
   theme_few()+
   ggtitle("No Diabetes")
@@ -106,7 +129,7 @@ p_0 <- test_data %>%
 p_1 <- test_data %>% 
   filter(Diabetes_012 == "prediabetes") %>% 
   ggplot()+
-  geom_histogram(aes(x = BMI),
+  geom_bar(aes(x = BMI),
                  fill = "black")+
   theme_few()+
   ggtitle("Pre-Diabetes")
@@ -114,7 +137,7 @@ p_1 <- test_data %>%
 p_2 <- test_data %>% 
   filter(Diabetes_012 == "diabetes") %>% 
   ggplot()+
-  geom_histogram(aes(x = BMI),
+  geom_bar(aes(x = BMI),
                  fill = "black")+
   theme_few()+
   ggtitle("Diabetes")
@@ -158,7 +181,7 @@ Errors are normal here.
 ```{r}
 leveneTest(BMI ~ Diabetes_012, data = test_data_30)
 ```
-Reject Null that variances are equal.
+Fail to Reject Null that variances are equal.
 
 Try Welche's
 

@@ -10,3 +10,12 @@ $$
 $$
 \text{H}_1: \mu_i \ne \mu_j \quad \text{for} \quad i\ne j \quad i,j \in \left\{ \text{ND, PD, D}\right\}
 $$
+
+
+$$
+\text{H}_0: \theta_{\text{ND}}=\theta_{\text{PD}}=\theta_{\text{D}}
+$$
+
+$$
+\text{H}_1: \theta_i \ne \theta_j \quad \text{for} \quad i\ne j \quad i,j \in \left\{ \text{ND, PD, D}\right\}
+$$
