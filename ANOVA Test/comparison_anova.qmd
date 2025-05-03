@@ -1,0 +1,204 @@
+---
+title: "comparison anova"
+format: pdf
+---
+
+```{r setup, include=FALSE}
+#Initial Code Chunk
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(ggthemes)
+library(readr)
+library(patchwork)
+library(car)
+
+diabeted_multiclass <- read_csv("../data/diabeted_multiclass.csv")
+```
+
+```{r}
+#Data Set Up
+data <- diabeted_multiclass %>% 
+  select(Diabetes_012,
+         BMI)
+
+data$Diabetes_012 <- factor(data$Diabetes_012,
+                            levels = c(0, 1, 2),
+                            labels = c("no_diabetes", "prediabetes", "diabetes"))
+glimpse(data)
+```
+
+```{r}
+data %>% 
+  ggplot()+
+  geom_bar(aes(x = Diabetes_012),
+           fill="black")+
+  theme_few()
+```
+Differences in sizes of groups. We will make them all the same size to make a balanced test.
+
+
+```{r}
+set.seed(560)
+n <- nrow(data[data$Diabetes_012 == "prediabetes", ])
+
+prediabetes <- data[data$Diabetes_012 == "prediabetes", ]
+no_diabetes <- slice_sample(data[data$Diabetes_012 == "no_diabetes", ], n=n)
+diabetes <- slice_sample(data[data$Diabetes_012 == "diabetes", ], n=n)
+
+test_data <- bind_rows(prediabetes, no_diabetes, diabetes)
+```
+
+
+
+### Parametric Anova
+
+```{r}
+# The ANOVA MODEl
+anova_model <- aov(BMI ~ Diabetes_012, test_data)
+summary(anova_model)
+```
+Anova tells us atleast one groups BMI mean differs from the rest at a very significant P-value
+
+```{r}
+# Assumptions Check
+# Normal Errors
+qqnorm(residuals(anova_model))
+qqline(residuals(anova_model), col = "red")
+```
+Serious Divergence from Normality. 
+
+```{r}
+#Assumptions Check
+#Homoskadacity
+leveneTest(BMI ~ Diabetes_012, data = test_data)
+```
+Levene's Test reject null that variances are equal. 
+
+Two assumptions have be violated. Nonparametric is a great choice.
+
+```{r}
+#Post-Hoc Test (as ANOVA is significant)
+TukeyHSD(anova_model)
+```
+all pairwise differences in mean BMI among the three diabetes groups are statistically significant at the 0.05 level. 
+
+
+Welch's Test does not consider equal variances
+```{r}
+# Welch's ANOVA
+oneway.test(BMI ~ Diabetes_012, data = test_data, var.equal = FALSE)
+```
+Significant P-value
+
+### Nonparametric - Kruskal Wallis
+
+```{r}
+#assumption - same distributions
+p_0 <- test_data %>% 
+  filter(Diabetes_012 == "no_diabetes") %>% 
+  ggplot()+
+  geom_histogram(aes(x = BMI),
+                 fill = "black")+
+  theme_few()+
+  ggtitle("No Diabetes")
+
+p_1 <- test_data %>% 
+  filter(Diabetes_012 == "prediabetes") %>% 
+  ggplot()+
+  geom_histogram(aes(x = BMI),
+                 fill = "black")+
+  theme_few()+
+  ggtitle("Pre-Diabetes")
+
+p_2 <- test_data %>% 
+  filter(Diabetes_012 == "diabetes") %>% 
+  ggplot()+
+  geom_histogram(aes(x = BMI),
+                 fill = "black")+
+  theme_few()+
+  ggtitle("Diabetes")
+
+p_0 + p_1 + p_2
+```
+
+Same distribution across groups. We are good to proceed.
+
+```{r}
+kruskal.test(BMI ~ Diabetes_012, data = test_data)
+pairwise.wilcox.test(test_data$BMI, test_data$Diabetes_012, p.adjust.method = "bonferroni")
+```
+
+### Smaller Samples
+
+What would happen if we only had 30 observations? Kruskal Wallis is suppose to be good for small samples sizes
+
+```{r}
+set.seed(560)
+prediabetes_30 <- slice_sample(data[data$Diabetes_012 == "prediabetes", ], n=10)
+no_diabetes_30 <- slice_sample(data[data$Diabetes_012 == "no_diabetes", ], n=10)
+diabetes_30 <- slice_sample(data[data$Diabetes_012 == "diabetes", ], n=10)
+
+test_data_30 <- bind_rows(prediabetes_30, no_diabetes_30, diabetes_30)
+```
+
+```{r}
+anova_model_30 <- aov(BMI ~ Diabetes_012, test_data_30)
+summary(anova_model_30)
+```
+fail to reject null
+
+
+```{r}
+qqnorm(residuals(anova_model_30))
+qqline(residuals(anova_model_30), col = "red")
+```
+Errors are normal here.
+
+```{r}
+leveneTest(BMI ~ Diabetes_012, data = test_data_30)
+```
+Reject Null that variances are equal.
+
+Try Welche's
+
+```{r}
+oneway.test(BMI ~ Diabetes_012, data = test_data_30, var.equal = FALSE)
+```
+Fail to Reject
+
+```{r}
+p_0 <- test_data_30 %>% 
+  filter(Diabetes_012 == "no_diabetes") %>% 
+  ggplot()+
+  geom_bar(aes(x = BMI),
+                 fill = "black")+
+  theme_few()+
+  ggtitle("No Diabetes")
+
+p_1 <- test_data_30 %>% 
+  filter(Diabetes_012 == "prediabetes") %>% 
+  ggplot()+
+  geom_bar(aes(x = BMI),
+                 fill = "black")+
+  theme_few()+
+  ggtitle("Pre-Diabetes")
+
+p_2 <- test_data_30 %>% 
+  filter(Diabetes_012 == "diabetes") %>% 
+  ggplot()+
+  geom_bar(aes(x = BMI),
+                 fill = "black")+
+  theme_few()+
+  ggtitle("Diabetes")
+
+p_0 + p_1 + p_2
+```
+
+Not really the same distribution
+
+```{r}
+kruskal.test(BMI ~ Diabetes_012, data = test_data_30)
+pairwise.wilcox.test(test_data_30$BMI, test_data_30$Diabetes_012, p.adjust.method = "bonferroni")
+```
+Also Fail to Reject here.
